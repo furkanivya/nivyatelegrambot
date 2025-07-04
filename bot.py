@@ -1,7 +1,6 @@
 import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
-import asyncio
 
 TOKEN = os.getenv("TOKEN")
 
@@ -23,11 +22,8 @@ async def forward(update: Update, context: ContextTypes.DEFAULT_TYPE):
             except Exception as e:
                 print(f"{chat_id} için hata oluştu: {e}")
 
-async def main():
+if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(MessageHandler(filters.ALL, forward))
     print("Bot çalışıyor! Otomatik yönlendirme aktif 🚀")
-    await app.run_polling()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    app.run_polling()
