@@ -1,64 +1,20 @@
 import os
-from telegram import Update, InputMediaPhoto, InputMediaVideo, InputMediaDocument
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ChannelPostHandler, ContextTypes
 
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("TOKEN")  # ya da TOKEN = "bot_token"
 
-TARGET_CHAT_IDS = [
-    -1002791720688,
-    -4834932252,
-    -4919166229,
-]
+# Kanaldan mesaj geldiğinde sadece log'a yazan handler
+async def kanal_id_logla(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat = update.effective_chat
+    kanal_adi = chat.title
+    kanal_id = chat.id
 
-async def forward_message_as_new(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.effective_chat.id
-
-    # Mesaj türüne göre işle
-    if update.message.text:
-        text = update.message.text
-        for group_id in TARGET_CHAT_IDS:
-            if group_id != chat_id:
-                try:
-                    await context.bot.send_message(chat_id=group_id, text=text)
-                except Exception as e:
-                    print(f"{group_id} için hata: {e}")
-
-    elif update.message.photo:
-        photo = update.message.photo[-1]  # En kaliteli foto
-        caption = update.message.caption or ""
-        for group_id in TARGET_CHAT_IDS:
-            if group_id != chat_id:
-                try:
-                    await context.bot.send_photo(chat_id=group_id, photo=photo.file_id, caption=caption)
-                except Exception as e:
-                    print(f"{group_id} için hata: {e}")
-
-    elif update.message.video:
-        video = update.message.video
-        caption = update.message.caption or ""
-        for group_id in TARGET_CHAT_IDS:
-            if group_id != chat_id:
-                try:
-                    await context.bot.send_video(chat_id=group_id, video=video.file_id, caption=caption)
-                except Exception as e:
-                    print(f"{group_id} için hata: {e}")
-
-    elif update.message.document:
-        document = update.message.document
-        caption = update.message.caption or ""
-        for group_id in TARGET_CHAT_IDS:
-            if group_id != chat_id:
-                try:
-                    await context.bot.send_document(chat_id=group_id, document=document.file_id, caption=caption)
-                except Exception as e:
-                    print(f"{group_id} için hata: {e}")
-
-    else:
-        # Diğer medya türleri veya karma mesajlar için eklemeler yapılabilir
-        print("Desteklenmeyen mesaj türü.")
+    # ✅ Sadece loglara yazıyoruz
+    print(f"[Gizli] Kanal adı: {kanal_adi} | Kanal ID: {kanal_id}")
 
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
-    app.add_handler(MessageHandler(filters.ALL, forward_message_as_new))
-    print("Bot çalışıyor! Yeni mesaj olarak yönlendirme aktif 🚀")
+    app.add_handler(ChannelPostHandler(kanal_id_logla))
+    print("Gizli ID botu aktif... Sadece loglara yazıyor 🕵️‍♀️")
     app.run_polling()
