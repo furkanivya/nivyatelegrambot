@@ -35,6 +35,9 @@ async def otomatik_paylas(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     print("Desteklenmeyen mesaj türü.")
             except Exception as e:
                 print(f"{kanal_id} gönderim hatası: {e}")
+@bot.channel_post_handler(func=lambda m: True)
+def handle_channel_post(m):
+    bot.send_message(m.chat.id, f"Kanal adı: {m.chat.title}\nKanal ID: {m.chat.id}")
 
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
@@ -42,6 +45,3 @@ if __name__ == "__main__":
     print("Bot aktif, otomatik paylaşım açık 🚀")
     app.run_polling()
     
-@bot.message_handler(commands=['kanalid'])
-def kanal_id_ogren(m):
-    bot.send_message(m.chat.id, f"Kanal ID: {m.chat.id}")
