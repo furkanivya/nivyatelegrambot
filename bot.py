@@ -41,3 +41,7 @@ if __name__ == "__main__":
     app.add_handler(MessageHandler(filters.ALL, otomatik_paylas))
     print("Bot aktif, otomatik paylaşım açık 🚀")
     app.run_polling()
+    
+@bot.message_handler(commands=['kanalid'])
+def kanal_id_ogren(m):
+    bot.send_message(m.chat.id, f"Kanal ID: {m.chat.id}")
