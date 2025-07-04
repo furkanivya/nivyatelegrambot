@@ -1,6 +1,12 @@
 import os
 from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+from telegram.ext import (
+    ApplicationBuilder,
+    MessageHandler,
+    ChannelPostHandler,
+    filters,
+    ContextTypes
+)
 
 TOKEN = os.getenv("TOKEN")
 
@@ -35,13 +41,24 @@ async def otomatik_paylas(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     print("Desteklenmeyen mesaj türü.")
             except Exception as e:
                 print(f"{kanal_id} gönderim hatası: {e}")
-@bot.channel_post_handler(func=lambda m: True)
-def handle_channel_post(m):
-    bot.send_message(m.chat.id, f"Kanal adı: {m.chat.title}\nKanal ID: {m.chat.id}")
+
+# ✅ Kanal mesajlarını yakalayan handler
+async def kanal_id_goster(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat = update.effective_chat
+    print(f"Kanal adı: {chat.title} | Kanal ID: {chat.id}")
+    try:
+        await context.bot.send_message(chat_id=chat.id, text=f"Kanal adı: {chat.title}\nKanal ID: {chat.id}")
+    except Exception as e:
+        print(f"Yanıt gönderilemedi: {e}")
 
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
+
+    # Her yerden gelen mesajları yakala
     app.add_handler(MessageHandler(filters.ALL, otomatik_paylas))
+
+    # Kanallardan gelen gönderileri yakala
+    app.add_handler(ChannelPostHandler(kanal_id_goster))
+
     print("Bot aktif, otomatik paylaşım açık 🚀")
     app.run_polling()
-    
